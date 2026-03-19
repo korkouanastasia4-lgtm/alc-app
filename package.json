@@ -1,0 +1,203 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #1f2937;
+  background: #f7f4f2;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input, select, textarea { font: inherit; }
+
+.login-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #7a1f2a, #b08a6a);
+}
+
+.login-card, .card {
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 18px 48px rgba(80, 28, 28, 0.12);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 32px;
+}
+
+.brand-pill {
+  display: inline-block;
+  border-radius: 999px;
+  background: #f6e9e1;
+  color: #7a1f2a;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.brand-pill.light {
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+}
+
+.login-card h1,
+.hero h1 {
+  margin: 14px 0 8px;
+  font-size: 42px;
+  color: #7a1f2a;
+}
+
+.subtitle,
+.supporting { color: #5b6470; }
+.supporting { margin-bottom: 22px; }
+
+.app-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 28px;
+  margin-bottom: 20px;
+  color: #fff;
+  border-radius: 28px;
+  background: linear-gradient(90deg, #7a1f2a, #8d2b37, #b08a6a);
+}
+
+.hero p { margin: 0; color: rgba(255,255,255,0.9); font-size: 18px; }
+.layout {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+}
+
+.card { padding: 22px; border: 1px solid #eadfd9; }
+
+.panel-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.panel-top.compact { margin-bottom: 8px; }
+.panel-top h2, .form-panel h2, .tasks-panel h2 { margin: 0; color: #7a1f2a; }
+.section-subtitle { color: #6b7280; margin: 6px 0 0; }
+
+.weekdays,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+
+.weekdays div {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.day-cell {
+  min-height: 96px;
+  border-radius: 22px;
+  border: 1px solid #eadfd9;
+  background: #fff;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.day-cell.empty { background: transparent; border: none; cursor: default; }
+.day-cell.selected { border-color: #7a1f2a; background: #fcf5f2; }
+.day-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.day-cell span { font-size: 12px; color: #6b7280; }
+.count-badge {
+  min-width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #b08a6a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.task-form { display: grid; gap: 14px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field-group { display: grid; gap: 8px; }
+.field-group label { font-size: 14px; font-weight: 700; color: #7a1f2a; }
+.field-group input,
+.field-group select,
+.field-group textarea {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid #d8c2b5;
+  padding: 12px 14px;
+  background: #fff;
+}
+
+.primary-button,
+.secondary-button,
+.danger-button {
+  border: none;
+  border-radius: 16px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.primary-button { background: #7a1f2a; color: #fff; }
+.secondary-button { background: #fff; color: #7a1f2a; border: 1px solid #d8c2b5; }
+.danger-button { background: #f8e6e1; color: #7a1f2a; }
+
+.tasks-panel { margin-top: 20px; }
+.empty-text { color: #6b7280; }
+.task-list { display: grid; gap: 12px; }
+.task-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  border: 1px solid #eadfd9;
+  border-radius: 22px;
+  padding: 16px;
+}
+.task-card h3 { margin: 0 0 6px; }
+.task-card p, .task-card small { color: #6b7280; }
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 8px 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+@media (max-width: 960px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .hero { flex-direction: column; }
+  .weekdays, .calendar-grid { gap: 6px; }
+  .day-cell { min-height: 82px; padding: 10px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .task-card { flex-direction: column; }
+}

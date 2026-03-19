@@ -1,0 +1,316 @@
+import React, { useMemo, useState } from 'react'
+
+const employees = [
+  'Πίτσα',
+  'Κλεόπας',
+  'Ευγενία',
+  'Γεωργιάνα',
+  'Αναστασία',
+]
+
+function pad(value) {
+  return String(value).padStart(2, '0')
+}
+
+function toDateStr(date) {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+}
+
+function formatGreekDate(dateStr) {
+  const date = new Date(`${dateStr}T00:00:00`)
+  return new Intl.DateTimeFormat('el-GR', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  }).format(date)
+}
+
+function monthTitle(date) {
+  return new Intl.DateTimeFormat('el-GR', {
+    month: 'long',
+    year: 'numeric',
+  }).format(date)
+}
+
+export default function App() {
+  const today = new Date()
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [currentMonth, setCurrentMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1))
+  const [selectedDate, setSelectedDate] = useState(toDateStr(today))
+  const [tasks, setTasks] = useState([])
+  const [form, setForm] = useState({
+    title: '',
+    employee: employees[0],
+    date: toDateStr(today),
+    time: '09:00',
+    notes: '',
+    remindDayBefore: true,
+    remindHoursBefore: '2',
+  })
+
+  const monthCells = useMemo(() => {
+    const year = currentMonth.getFullYear()
+    const month = currentMonth.getMonth()
+    const firstDay = new Date(year, month, 1)
+    const lastDay = new Date(year, month + 1, 0)
+    const offset = (firstDay.getDay() + 6) % 7
+    const cells = []
+
+    for (let i = 0; i < offset; i += 1) cells.push(null)
+
+    for (let day = 1; day <= lastDay.getDate(); day += 1) {
+      const date = new Date(year, month, day)
+      const dateStr = toDateStr(date)
+      cells.push({
+        day,
+        dateStr,
+        count: tasks.filter((task) => task.date === dateStr).length,
+      })
+    }
+
+    return cells
+  }, [currentMonth, tasks])
+
+  const tasksForSelectedDate = useMemo(
+    () => tasks.filter((task) => task.date === selectedDate).sort((a, b) => a.time.localeCompare(b.time)),
+    [tasks, selectedDate]
+  )
+
+  const handleDayClick = (dateStr) => {
+    setSelectedDate(dateStr)
+    setForm((prev) => ({ ...prev, date: dateStr }))
+  }
+
+  const addTask = (event) => {
+    event.preventDefault()
+    if (!form.title.trim() || !form.time) return
+
+    setTasks((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        title: form.title.trim(),
+        employee: form.employee,
+        date: form.date,
+        time: form.time,
+        notes: form.notes.trim(),
+        remindDayBefore: form.remindDayBefore,
+        remindHoursBefore: form.remindHoursBefore,
+      },
+    ])
+
+    setSelectedDate(form.date)
+    setForm((prev) => ({
+      ...prev,
+      title: '',
+      time: '09:00',
+      notes: '',
+      remindHoursBefore: '2',
+    }))
+  }
+
+  const deleteTask = (id) => {
+    setTasks((prev) => prev.filter((task) => task.id !== id))
+  }
+
+  if (!loggedIn) {
+    return (
+      <div className="login-shell">
+        <div className="login-card">
+          <div className="brand-pill">ALC Scheduler</div>
+          <h1>ALC</h1>
+          <p className="subtitle">Επίσημος Αντιπρόσωπος της Fagron στην Κύπρο</p>
+          <p className="supporting">
+            Ημερολόγιο εργασιών προσωπικού με επιλογή ημέρας, ώρας και ειδοποιήσεων.
+          </p>
+
+          <div className="field-group">
+            <label>Email</label>
+            <input type="email" placeholder="admin@alc.com" />
+          </div>
+          <div className="field-group">
+            <label>Κωδικός</label>
+            <input type="password" placeholder="••••••••" />
+          </div>
+
+          <button className="primary-button" onClick={() => setLoggedIn(true)}>
+            Είσοδος
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="app-shell">
+      <header className="hero">
+        <div>
+          <div className="brand-pill light">ALC</div>
+          <h1>ALC</h1>
+          <p>Επίσημος Αντιπρόσωπος της Fagron στην Κύπρο</p>
+        </div>
+        <button className="secondary-button" onClick={() => setLoggedIn(false)}>
+          Logout
+        </button>
+      </header>
+
+      <main className="layout">
+        <section className="calendar-panel card">
+          <div className="panel-top">
+            <button className="secondary-button" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}>
+              Προηγούμενος
+            </button>
+            <h2>{monthTitle(currentMonth)}</h2>
+            <button className="secondary-button" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}>
+              Επόμενος
+            </button>
+          </div>
+
+          <div className="weekdays">
+            {['Δευ', 'Τρι', 'Τετ', 'Πεμ', 'Παρ', 'Σαβ', 'Κυρ'].map((day) => (
+              <div key={day}>{day}</div>
+            ))}
+          </div>
+
+          <div className="calendar-grid">
+            {monthCells.map((cell, index) =>
+              cell ? (
+                <button
+                  key={cell.dateStr}
+                  className={`day-cell ${selectedDate === cell.dateStr ? 'selected' : ''}`}
+                  onClick={() => handleDayClick(cell.dateStr)}
+                >
+                  <div className="day-row">
+                    <strong>{cell.day}</strong>
+                    {cell.count > 0 ? <span className="count-badge">{cell.count}</span> : null}
+                  </div>
+                  <span>Πάτησε για προσθήκη</span>
+                </button>
+              ) : (
+                <div key={`empty-${index}`} className="day-cell empty" />
+              )
+            )}
+          </div>
+        </section>
+
+        <section className="form-panel card">
+          <h2>Νέα εργασία</h2>
+          <p className="section-subtitle">{formatGreekDate(form.date)}</p>
+
+          <form className="task-form" onSubmit={addTask}>
+            <div className="field-group">
+              <label>Τίτλος εργασίας</label>
+              <input
+                value={form.title}
+                onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
+                placeholder="π.χ. Παράδοση προϊόντων"
+              />
+            </div>
+
+            <div className="grid-2">
+              <div className="field-group">
+                <label>Υπάλληλος</label>
+                <select
+                  value={form.employee}
+                  onChange={(e) => setForm((prev) => ({ ...prev, employee: e.target.value }))}
+                >
+                  {employees.map((employee) => (
+                    <option key={employee} value={employee}>
+                      {employee}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="field-group">
+                <label>Ώρα</label>
+                <input
+                  type="time"
+                  value={form.time}
+                  onChange={(e) => setForm((prev) => ({ ...prev, time: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="grid-2">
+              <div className="field-group">
+                <label>Ειδοποίηση προηγούμενη μέρα</label>
+                <select
+                  value={String(form.remindDayBefore)}
+                  onChange={(e) => setForm((prev) => ({ ...prev, remindDayBefore: e.target.value === 'true' }))}
+                >
+                  <option value="true">Ναι</option>
+                  <option value="false">Όχι</option>
+                </select>
+              </div>
+
+              <div className="field-group">
+                <label>Ώρες πριν</label>
+                <select
+                  value={form.remindHoursBefore}
+                  onChange={(e) => setForm((prev) => ({ ...prev, remindHoursBefore: e.target.value }))}
+                >
+                  <option value="1">1 ώρα</option>
+                  <option value="2">2 ώρες</option>
+                  <option value="3">3 ώρες</option>
+                  <option value="6">6 ώρες</option>
+                  <option value="12">12 ώρες</option>
+                  <option value="24">24 ώρες</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="field-group">
+              <label>Σημειώσεις</label>
+              <textarea
+                rows="4"
+                value={form.notes}
+                onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
+                placeholder="Λεπτομέρειες για την εργασία"
+              />
+            </div>
+
+            <button className="primary-button" type="submit">
+              Αποθήκευση εργασίας
+            </button>
+          </form>
+        </section>
+      </main>
+
+      <section className="tasks-panel card">
+        <div className="panel-top compact">
+          <div>
+            <h2>Εργασίες ημέρας</h2>
+            <p className="section-subtitle">{formatGreekDate(selectedDate)}</p>
+          </div>
+        </div>
+
+        {tasksForSelectedDate.length === 0 ? (
+          <p className="empty-text">Δεν υπάρχουν εργασίες για την επιλεγμένη ημέρα.</p>
+        ) : (
+          <div className="task-list">
+            {tasksForSelectedDate.map((task) => (
+              <article key={task.id} className="task-card">
+                <div>
+                  <h3>{task.title}</h3>
+                  <p>{task.employee}</p>
+                  <div className="task-meta">
+                    <span>{task.time}</span>
+                    <span>
+                      {task.remindDayBefore ? '1 μέρα πριν' : 'Χωρίς προηγούμενη μέρα'} + {task.remindHoursBefore} ώρες πριν
+                    </span>
+                  </div>
+                  {task.notes ? <small>{task.notes}</small> : null}
+                </div>
+                <button className="danger-button" onClick={() => deleteTask(task.id)}>
+                  Διαγραφή
+                </button>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  )
+}
